@@ -11,10 +11,13 @@ services:
         interval: 10s
         timeout: 5s
         retries: 10
+    logging:
+      driver: none
 
-  point_a_1_answers_reader:
+  answers_reader:
     build:
-      context: point_a/1_answers_reader
+      context: .
+      dockerfile: answers_reader/Dockerfile
     depends_on:
       - rabbitmq
     links:
@@ -25,9 +28,10 @@ services:
     volumes:
       - ../data:/data
 
-  point_a_2_sentiment_calculator:
+  point_a_sentiment_calculator:
     build:
-      context: point_a/2_sentiment_calculator
+      context: .
+      dockerfile: point_a/sentiment_calculator/Dockerfile
     depends_on:
       - rabbitmq
     links:
@@ -37,9 +41,10 @@ services:
     volumes:
       - ../nltk_data:/root/nltk_data
 
-  point_a_3_percentage_calculator:
+  point_a_percentage_calculator:
     build:
-      context: point_a/3_percentage_calculator
+      context: .
+      dockerfile: point_a/percentage_calculator/Dockerfile
     depends_on:
       - rabbitmq
     links:
@@ -47,3 +52,5 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SENTIMENT_CALCULATOR_COUNT
+    volumes:
+      - ../results:/results
