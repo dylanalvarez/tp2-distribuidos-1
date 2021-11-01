@@ -1,0 +1,15 @@
+version: '3'
+services:
+  build_docker_compose:
+    build:
+      context: .
+      dockerfile: script/Dockerfile
+    entrypoint: ruby /build_docker_compose.rb
+    environment:
+      - USER_SCORE_BUCKET_COUNT
+    volumes:
+     - type: bind
+       source: ../src/docker-compose.yml
+       target: /docker-compose.yml
+       read_only: false
+    profiles: ["script"]

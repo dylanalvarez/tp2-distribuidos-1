@@ -4,7 +4,7 @@ import nltk
 from common.connect_to_rabbitmq import connect_to_rabbitmq
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-nltk.download('vader_lexicon')
+# nltk.download('vader_lexicon')
 
 with connect_to_rabbitmq() as channel:
     channel.queue_declare(queue='answer_bodies')
@@ -15,8 +15,8 @@ with connect_to_rabbitmq() as channel:
     def handle_answer_body(_ch, method, _properties, body):
         body = body.decode("ISO-8859-1")
         if body == '__end__':
+            print('answer_bodies ended')
             channel.basic_publish(exchange='', routing_key='sentiments', body=body)
-            print('publique 1 end')
             channel.basic_ack(delivery_tag=method.delivery_tag)
             exit(0)
         else:
