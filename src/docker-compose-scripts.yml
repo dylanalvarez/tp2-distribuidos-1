@@ -7,6 +7,8 @@ services:
     entrypoint: ruby /build_docker_compose.rb
     environment:
       - USER_SCORE_BUCKET_COUNT
+      - JOINER_BY_QUESTION_ID_COUNT
+      - JOINER_BY_YEAR_COUNT
     volumes:
      - type: bind
        source: ../src/docker-compose.yml

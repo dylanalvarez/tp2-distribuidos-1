@@ -35,6 +35,7 @@ services:
       - PYTHONUNBUFFERED=1
       - SENTIMENT_CALCULATOR_COUNT
       - USER_SCORE_BUCKET_COUNT
+      - JOINER_BY_QUESTION_ID_COUNT
     volumes:
       - ../data:/data
 
@@ -49,6 +50,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - USER_SCORE_BUCKET_COUNT
+      - JOINER_BY_QUESTION_ID_COUNT
     volumes:
       - ../data:/data
 
@@ -121,6 +123,20 @@ services:
     volumes:
       - ../results:/results
 
+  point_c_file_writer:
+    build:
+      context: .
+      dockerfile: point_c/file_writer/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JOINER_BY_YEAR_COUNT
+    volumes:
+      - ../results:/results
+
         YAML
     )
 
@@ -168,6 +184,46 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - NODE_ID=#{node_id - 1}
+
+            YAML
+        )
+    end
+
+    (1..ENV["JOINER_BY_QUESTION_ID_COUNT"].to_i).map do |node_id|
+        file.write(
+            <<-YAML
+  point_c_joiner_by_question_id#{node_id}:
+    build:
+      context: .
+      dockerfile: point_c/joiner_by_question_id/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_ID=#{node_id - 1}
+      - JOINER_BY_YEAR_COUNT
+
+            YAML
+        )
+    end
+
+    (1..ENV["JOINER_BY_YEAR_COUNT"].to_i).map do |node_id|
+        file.write(
+            <<-YAML
+  point_c_joiner_by_year#{node_id}:
+    build:
+      context: .
+      dockerfile: point_c/joiner_by_year/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_ID=#{node_id - 1}
+      - JOINER_BY_QUESTION_ID_COUNT
 
             YAML
         )

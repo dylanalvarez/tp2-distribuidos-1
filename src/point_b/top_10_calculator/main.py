@@ -13,15 +13,13 @@ with connect_to_rabbitmq() as channel:
 
     def handle_user_with_joined_score(_ch, method, _properties, body):
         body = body.decode("ISO-8859-1")
-        print(f'received {body}')
         global accumulator_count
         global top_users
         global finished_accumulators
         if body == '__end__':
-            print('user_with_joined_score ended')
             finished_accumulators += 1
             if finished_accumulators == accumulator_count:
-                with open('/results/top_10_calculator.txt', 'w+') as file:
+                with open('/results/top_10_users.txt', 'w+') as file:
                     if len(top_users) == 0:
                         file.write('Ended with no users')
                     else:

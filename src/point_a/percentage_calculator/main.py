@@ -17,10 +17,9 @@ with connect_to_rabbitmq() as channel:
         global total_sentiment_count
         global finished_sentiment_calculator_count
         if body == '__end__':
-            print('sentiments ended')
             finished_sentiment_calculator_count += 1
             if finished_sentiment_calculator_count == total_sentiment_calculator_count:
-                with open('/results/percentage_calculator.txt', 'w+') as file:
+                with open('/results/percentage.txt', 'w+') as file:
                     if total_sentiment_count == 0:
                         file.write('Ended with no answers')
                     else:

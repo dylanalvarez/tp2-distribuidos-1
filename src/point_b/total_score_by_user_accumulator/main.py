@@ -26,12 +26,9 @@ with connect_to_rabbitmq() as channel:
     def enqueue_if_finished():
         if average_score is None or not has_all_users:
             return
-        print(f'average score {average_score} has all users {has_all_users}')
 
-        print(str(scores_by_user_id))
         for user_id, (score_count, score_sum) in scores_by_user_id.items():
             if score_sum / score_count >= average_score:
-                print(f"sending {' '.join((user_id, str(score_sum)))}")
                 channel.basic_publish(exchange='', routing_key=f'{user_with_total_score_exchange_name}_{node_id}', body=' '.join((user_id, str(score_sum))))
         send_end(channel, exchange='', routing_key=f'{user_with_total_score_exchange_name}_{node_id}')
         exit(0)
@@ -41,9 +38,7 @@ with connect_to_rabbitmq() as channel:
         global scores_by_user_id
         global has_all_users
         body = body.decode("ISO-8859-1")
-        print(f'received user with score: {body}')
         if body == '__end__':
-            print(f'{user_with_score_exchange_name} ended')
             has_all_users = True
             channel.basic_ack(delivery_tag=method.delivery_tag)
         else:
@@ -55,7 +50,6 @@ with connect_to_rabbitmq() as channel:
                     scores_by_user_id[user_id] = (score_count + 1, score_sum + score)
                 else:
                     scores_by_user_id[user_id] = (1, score)
-                print(str(scores_by_user_id))
             channel.basic_ack(delivery_tag=method.delivery_tag)
         enqueue_if_finished()
 

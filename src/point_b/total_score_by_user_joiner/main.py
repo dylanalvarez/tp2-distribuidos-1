@@ -21,7 +21,6 @@ with connect_to_rabbitmq() as channel:
 
     def enqueue_remaining_users():
         for user_id, scores in scores_by_user_id.items():
-            print(f"sent with end: {' '.join((user_id, str(scores.get('answer', 0) + scores.get('question', 0))))}")
             channel.basic_publish(
                 exchange='',
                 routing_key='user_with_joined_score',
@@ -37,15 +36,12 @@ with connect_to_rabbitmq() as channel:
         global answer_user_with_total_score_queue_name
         global question_user_with_total_score_queue_name
         body = body.decode("ISO-8859-1")
-        print(f'received {body}')
         if body == '__end__':
-            print(f'received end, is answer: {is_answer}')
             # TODO: it's receiving __end__ of answer users before receiving all send users (is queue order not guaranteed...?)
             if is_answer:
                 has_all_answer_users = True
             else:
                 has_all_question_users = True
-            print(f'has all answer: {has_all_answer_users} has all question: {has_all_question_users}')
             if has_all_answer_users and has_all_question_users:
                 enqueue_remaining_users()
         else:
@@ -58,7 +54,6 @@ with connect_to_rabbitmq() as channel:
             scores_by_user_id[user_id][key] = score
             if 'answer' in scores_by_user_id[user_id] and 'question' in scores_by_user_id[user_id]:
                 scores = scores_by_user_id.pop(user_id)
-                print(f"sent before end: {' '.join((user_id, str(scores['answer'] + scores['question'])))}")
                 channel.basic_publish(exchange='', routing_key='user_with_joined_score', body=' '.join((user_id, str(scores['answer'] + scores['question']))))
         channel.basic_ack(delivery_tag=method.delivery_tag)
 

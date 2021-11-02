@@ -15,7 +15,6 @@ with connect_to_rabbitmq() as channel:
     def handle_answer_body(_ch, method, _properties, body):
         body = body.decode("ISO-8859-1")
         if body == '__end__':
-            print('answer_bodies ended')
             channel.basic_publish(exchange='', routing_key='sentiments', body=body)
             channel.basic_ack(delivery_tag=method.delivery_tag)
             exit(0)

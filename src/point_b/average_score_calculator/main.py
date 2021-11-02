@@ -20,7 +20,6 @@ with connect_to_rabbitmq() as channel:
         global score_sum
         global total_count
         if body == '__end__':
-            print(f'{scores_queue_name} ended')
             average_score = 0 if total_count == 0 else score_sum / total_count
             for node_id in range(accumulator_count):
                 channel.basic_publish(exchange='', routing_key=f'{avg_score_exchange_name}_{node_id}', body=str(average_score))
