@@ -37,7 +37,6 @@ with connect_to_rabbitmq() as channel:
         global question_user_with_total_score_queue_name
         body = body.decode("ISO-8859-1")
         if body == '__end__':
-            # TODO: it's receiving __end__ of answer users before receiving all send users (is queue order not guaranteed...?)
             if is_answer:
                 has_all_answer_users = True
             else:

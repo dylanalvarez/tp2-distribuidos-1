@@ -39,6 +39,3 @@ with connect_to_rabbitmq() as channel:
 
     channel.basic_consume(queue='user_with_joined_score', on_message_callback=handle_user_with_joined_score)
     channel.start_consuming()
-
-
-# TODO: top_10_calculator varía!
