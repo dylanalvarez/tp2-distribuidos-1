@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import math
 
 from common.connect_to_rabbitmq import connect_to_rabbitmq
 
@@ -28,6 +29,8 @@ with connect_to_rabbitmq() as channel:
                 exit(0)
         else:
             user_id, score = body.split(' ')
+            score = float(score)
+            score = 0 if math.isnan(score) else score
             if user_id:
                 if len(top_users) < 10:
                     top_users.append((user_id, score))
