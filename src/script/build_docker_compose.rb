@@ -51,7 +51,7 @@ services:
   answer_column_dropper_b:
     build:
       context: .
-      dockerfile: point_b/answer_column_dropper_b/Dockerfile
+      dockerfile: point_b/column_dropper_b/Dockerfile
     depends_on:
       - rabbitmq
     links:
@@ -59,11 +59,37 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - USER_SCORE_BUCKET_COUNT
+      - ROW_TYPE=answer
+
+  question_column_dropper_b:
+    build:
+      context: .
+      dockerfile: point_b/column_dropper_b/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - USER_SCORE_BUCKET_COUNT
+      - ROW_TYPE=question
 
   answer_column_dropper_c:
     build:
       context: .
       dockerfile: point_c/answer_column_dropper_c/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JOINER_BY_QUESTION_ID_COUNT
+
+  question_column_dropper_c:
+    build:
+      context: .
+      dockerfile: point_c/question_column_dropper_c/Dockerfile
     depends_on:
       - rabbitmq
     links:
