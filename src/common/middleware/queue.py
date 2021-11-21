@@ -2,6 +2,15 @@ END = '__end__'
 
 
 class Queue:
+    """
+    Allows communication between processes.
+    Requires an active connection to RabbitMQ for the rabbitmq_channel parameter, and a queue name
+    that must coincide with the Queue instance in the process with which you're communicating.
+
+    Given those two construction parameters, you can send a text message or and end message,
+    and with the listen method you can receive a text message or an end message.
+    """
+
     def __init__(self, name, rabbitmq_channel):
         rabbitmq_channel.queue_declare(queue=name)
         self.name = name

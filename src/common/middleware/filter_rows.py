@@ -2,6 +2,15 @@ import json
 
 
 class FilterRows:
+    """
+    Discards rows and columns given a should_discard_row function
+    and a map_row_to_message_by_output_queue function. The latter is a function that maps a row (dict)
+    to the messages that each output queue should send based on it.
+
+    When the input queue sends and end message, the end_message_count_by_output_queue parameter
+    defines which output queues should receive how many end messages. After sending them, the program exits.
+    """
+
     def __init__(
             self,
             input_queue,
