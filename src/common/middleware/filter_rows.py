@@ -5,33 +5,35 @@ from common.send_end import send_end
 
 
 class FilterRows:
-    def __init__(self, input_queue, output_queue, output_end_message_count, should_discard_row, map_row_to_message_string):
+    def __init__(self, input_queue, map_row_to_message_by_output_queue, end_message_count_by_output_queue, should_discard_row=lambda _: False):
         self.input_queue = input_queue
-        self.output_queue = output_queue
-        self.output_end_message_count = output_end_message_count
+        self.map_row_to_message_by_output_queue = map_row_to_message_by_output_queue
+        self.end_message_count_by_output_queue = end_message_count_by_output_queue
         self.should_discard_row = should_discard_row
-        self.map_row_to_message_string = map_row_to_message_string
 
     def run(self):
         with connect_to_rabbitmq() as channel:
             channel.queue_declare(queue=self.input_queue)
-            channel.queue_declare(queue=self.output_queue)
+            for output_queue in self.end_message_count_by_output_queue.keys():
+                channel.queue_declare(queue=output_queue)
 
             def handle_row(_ch, method, _properties, body):
                 body = body.decode("ISO-8859-1")
                 if body == '__end__':
-                    for _ in range(self.output_end_message_count):
-                        send_end(channel, exchange='', routing_key=self.output_queue)
+                    for output_queue, end_message_count in self.end_message_count_by_output_queue.items():
+                        for _ in range(end_message_count):
+                            send_end(channel, exchange='', routing_key=output_queue)
                     channel.basic_ack(delivery_tag=method.delivery_tag)
                     exit(0)
                 else:
                     row = json.loads(body)
                     if not self.should_discard_row(row):
-                        channel.basic_publish(
-                            exchange='',
-                            routing_key=self.output_queue,
-                            body=self.map_row_to_message_string(row)
-                        )
+                        for output_queue, message_string in self.map_row_to_message_by_output_queue(row).items():
+                            channel.basic_publish(
+                                exchange='',
+                                routing_key=output_queue,
+                                body=message_string
+                            )
 
             channel.basic_consume(queue=self.input_queue, on_message_callback=handle_row)
             channel.start_consuming()
