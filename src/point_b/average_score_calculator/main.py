@@ -10,7 +10,8 @@ with connect_to_rabbitmq() as channel:
     avg_score_exchange_name = os.getenv('AVG_SCORE_EXCHANGE_NAME')
     accumulator_count = int(os.getenv('USER_SCORE_BUCKET_COUNT'))
     channel.queue_declare(queue=scores_queue_name)
-    channel.queue_declare(queue=avg_score_exchange_name)
+    for node_id in range(accumulator_count):
+        channel.queue_declare(queue=f'{avg_score_exchange_name}_{node_id}')
 
     score_sum = 0
     total_count = 0

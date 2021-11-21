@@ -33,11 +33,44 @@ services:
       - rabbitmq
     environment:
       - PYTHONUNBUFFERED=1
-      - SENTIMENT_CALCULATOR_COUNT
-      - USER_SCORE_BUCKET_COUNT
-      - JOINER_BY_QUESTION_ID_COUNT
     volumes:
       - ../data:/data
+
+  answer_column_dropper_a:
+    build:
+      context: .
+      dockerfile: point_a/answer_column_dropper_a/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SENTIMENT_CALCULATOR_COUNT
+
+  answer_column_dropper_b:
+    build:
+      context: .
+      dockerfile: point_b/answer_column_dropper_b/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - USER_SCORE_BUCKET_COUNT
+
+  answer_column_dropper_c:
+    build:
+      context: .
+      dockerfile: point_c/answer_column_dropper_c/Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JOINER_BY_QUESTION_ID_COUNT
 
   questions_reader:
     build:
